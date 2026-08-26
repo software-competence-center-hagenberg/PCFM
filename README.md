@@ -1,4 +1,4 @@
-# PCFM — Pre-trained Causal Foundation Model for Time Series
+# PCFM: Probabilistic Causal Foundation Model for Zero-Shot Multivariate Forecasting Under Topological Constraints
 
 [![Model on Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-PCFM-yellow)](https://huggingface.co/software-competence-center-hagenberg/PCFM)
 [![PyTorch](https://img.shields.io/badge/PyTorch-%E2%89%A52.4-ee4c2c)](https://pytorch.org)
