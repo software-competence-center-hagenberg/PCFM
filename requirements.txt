@@ -1,0 +1,8 @@
+torch>=2.4
+numpy
+huggingface_hub
+safetensors
+# optional:
+pandas      # DataFrame API (predict_df)
+scipy       # "CP" graph mode
+matplotlib  # plots in example.py
