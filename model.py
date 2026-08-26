@@ -1,15 +1,4 @@
-"""PCFM — Pre-trained Causal Foundation Model for multivariate time series.
-
-Self-contained inference code for the checkpoint published at
-    https://huggingface.co/software-competence-center-hagenberg/PCFM
-
-The architecture below is copied verbatim from the training / evaluation code,
-with every configuration value of the published checkpoint hardcoded, so this
-single file plus the weights is everything needed for inference.
-
-Dependencies: torch >= 2.4 (nn.RMSNorm), numpy, and (only for downloading the
-checkpoint from the Hub) huggingface_hub.
-
+"""
 Public API (see README.md for details):
 
     from model import PCFMPredictor
