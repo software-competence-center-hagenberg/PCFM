@@ -541,16 +541,28 @@ class PCFMMAEWrapper(nn.Module):
     def _prepare_forecast_inputs(self, data, x, T_in, pred_len, pad_len_inf, P, max_steps, dtype, device):
         N, C = x.shape[0], x.shape[1]
         is_discrete = getattr(data, 'is_discrete', None)
+        # optional batch padding: data.m_pad_step [N, T, 1] (1 = padded step) marks series that were left-padded to a
+        # common length inside a batch; the padding is then hidden from the model and from the RevIN statistics
+        pad_step = getattr(data, 'm_pad_step', None)
+        if pad_step is not None:
+            pad_step = pad_step.to(device=device, dtype=dtype)
+            if pad_len_inf > 0:
+                pad_step = torch.cat([torch.ones((N, pad_len_inf, 1), device=device, dtype=dtype), pad_step], dim=1)
         max_hist = ((max_steps * self.max_unrolled_chunks - pred_len) // P) * P
         if T_in > max_hist:
             x = x[:, :, -max_hist:]
             T_in = max_hist
+            if pad_step is not None:
+                pad_step = pad_step[:, -max_hist:]
         P_hist, P_pred = T_in // P, math.ceil(pred_len / P)
         total_steps = (P_hist + P_pred) * P
 
         m_pad_full = torch.zeros((N, P_hist + P_pred, 1), device=device, dtype=dtype)
         m_pad_step_full = torch.zeros((N, total_steps, 1), device=device, dtype=dtype)
-        if pad_len_inf > 0:
+        if pad_step is not None:
+            m_pad_step_full[:, :T_in] = pad_step
+            m_pad_full[:, :P_hist] = pad_step.view(N, P_hist, P).amin(dim=-1, keepdim=True)   # fully padded patches
+        elif pad_len_inf > 0:
             m_pad_step_full[:, :pad_len_inf, :] = 1.0
             if (pad_len_inf // P) > 0:
                 m_pad_full[:, :(pad_len_inf // P), :] = 1.0

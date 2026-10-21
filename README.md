@@ -286,6 +286,19 @@ on a saturating system:
   <img src="figures/whatif_dose_nonlinear.png" width="90%" alt="Dissertation dose-response, saturating system">
 </p>
 
+## GIFT-Eval
+
+`utils.py` holds the training-free inference recipe of our [GIFT-Eval](https://github.com/SalesforceAIResearch/gift-eval)
+submission (sign-flip x dilation ensemble, short-context stretching, context cap); `gifteval.ipynb` evaluates the
+released checkpoint with it on the full suite (97 configurations), end to end in Colab.
+
+```python
+from utils import load_model, PCFMForecaster
+q = PCFMForecaster(load_model(), prediction_length=48, freq="H").predict([y])   # [9, 48]; freq optional
+```
+
+Open `gifteval.ipynb` in Colab (GPU runtime) and run all cells; it writes `results/PCFM/all_results.csv`.
+
 ## API summary
 
 | Call | Purpose |

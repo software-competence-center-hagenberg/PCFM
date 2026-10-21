@@ -188,5 +188,21 @@ for bad_call in (lambda: model.what_if(window, context_length=CONTEXT + HORIZON 
         pass
 print("PASS  input validation")
 
+# --- 11. batch padding (m_pad_step): a left-padded series in a batch == the same series alone ---
+from model import GraphInput
+_a = np.random.randn(1, 320).astype(np.float32).cumsum(-1)
+_b = np.random.randn(1, 512).astype(np.float32).cumsum(-1)
+with torch.no_grad():
+    alone = model.model(GraphInput(x=torch.from_numpy(_a), edge_index=torch.zeros(2, 1, dtype=torch.long),
+                                   edge_attr=torch.zeros(1, 1), batch=torch.zeros(1, dtype=torch.long), num_graphs=1),
+                        mode="forecast", pred_len=64)
+    X = np.zeros((2, 512), np.float32); X[0, 192:] = _a[0]; X[1] = _b[0]
+    pad = np.zeros((2, 512, 1), np.float32); pad[0, :192] = 1.0
+    both = model.model(GraphInput(x=torch.from_numpy(X), edge_index=torch.arange(2).repeat(2, 1),
+                                  edge_attr=torch.zeros(2, 1), batch=torch.arange(2), num_graphs=2,
+                                  m_pad_step=torch.from_numpy(pad)), mode="forecast", pred_len=64)
+assert torch.allclose(alone[0], both[0], rtol=1e-4, atol=1e-4), "batch padding must be invisible to the forecast"
+print("PASS  batch padding mask (m_pad_step)")
+
 os.remove(CKPT)
 print("\nALL RELEASE TESTS PASSED")
