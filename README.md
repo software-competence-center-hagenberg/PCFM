@@ -1,6 +1,9 @@
 # PCFM: Probabilistic Causal Foundation Model for Zero-Shot Multivariate Forecasting Under Topological Constraints
 
 [![Model on Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-PCFM-yellow)](https://huggingface.co/software-competence-center-hagenberg/PCFM)
+[![TS-Arena](https://img.shields.io/badge/TS--Arena-%231%20overall%20(PCFM--FT)-2ea44f)](https://dag-upb-ts-arena.hf.space/)
+[![GIFT-Eval](https://img.shields.io/badge/GIFT--Eval-%232%20multivariate%20CRPS-blue)](https://huggingface.co/spaces/Salesforce/GIFT-Eval)
+[![fev-bench](https://img.shields.io/badge/fev--bench-top%203%20of%2016-blue)](https://huggingface.co/spaces/autogluon/fev-bench)
 [![PyTorch](https://img.shields.io/badge/PyTorch-%E2%89%A52.4-ee4c2c)](https://pytorch.org)
 [![Python](https://img.shields.io/badge/Python-%E2%89%A53.10-blue)](https://www.python.org)
 
@@ -18,17 +21,26 @@ no fine-tuning.
 driver A (bottom) — the predicted responses of B and C (crisp lines) track the
 ground-truth physics (light bands), including the non-monotonic yield peaks.</i></p>
 
-**Contents**  [Highlights](#highlights) · [Benchmark](#benchmark) ·
+**Contents**  [Highlights](#highlights) · [Leaderboards](#leaderboards) ·
 [Getting started](#getting-started) · [Quickstart](#quickstart) ·
 [What-if](#1-what-if--interventions-with-known-consequences) ·
 [Causal graphs](#2-causal-graphs--ci--cd--cp--custom) ·
 [Custom masks](#3-custom-masks--in-filling-and-beyond) ·
 [DataFrame API](#4-dataframe-api--predict_df) ·
 [Forecasting](#5-forecasting--with-and-without-a-predictable-future) ·
+[GIFT-Eval recipe](#gift-eval-recipe) ·
 [API summary](#api-summary) · [Model card](#model-card)
 
 ## Highlights
 
+- **Leaderboard results with 53M parameters.** A domain fine-tuned PCFM
+  (PCFM-FT) ranks **#1 overall on [TS-Arena](https://dag-upb-ts-arena.hf.space/)**;
+  the zero-shot checkpoint sits on TS-Arena's size-vs-score **Pareto front**,
+  ranks **#2 on [GIFT-Eval](https://huggingface.co/spaces/Salesforce/GIFT-Eval)
+  (multivariate CRPS)** and **top 3 of 16 on
+  [fev-bench](https://huggingface.co/spaces/autogluon/fev-bench)**. Obel,
+  PCFM plus retrieval of outside series, currently tops TS-Arena
+  (provisional, not yet ranked).
 - **One file.** The whole model lives in `model.py` with the checkpoint
   configuration hardcoded — install four small dependencies and go.
 - **Forecasting + what-if in one API.** Point forecasts and 9 calibrated
@@ -42,12 +54,55 @@ ground-truth physics (light bands), including the non-monotonic yield peaks.</i>
   dynamics, interleaved with graph message-passing layers that follow the
   causal edges and their delays. No `torch_geometric` required.
 
-## Benchmark
+## Leaderboards
 
-On [fev-bench](https://github.com/autogluon/fev), PCFM ranks **among the top 3
-of 16 evaluated forecasting foundation models** on both point accuracy (MASE)
-and probabilistic accuracy (scaled quantile loss) — pairwise skill scores with
-95% confidence intervals:
+Snapshot as of **6 November 2026** (TS-Arena size-vs-score: 28 October 2026).
+Leaderboards move; follow the links for the live standings.
+
+| Leaderboard | Model | Result |
+|---|---|---|
+| [TS-Arena](https://dag-upb-ts-arena.hf.space/) — overall, all 16 challenges | PCFM-FT (domain fine-tuned PCFM) | **#1 of 45** probabilistic (Arena Score 82.7 [78.7, 87.0]); **#1 of 56** point (63.7 [58.3, 69.7]) |
+| [TS-Arena](https://dag-upb-ts-arena.hf.space/) — overall, all 16 challenges | PCFM (zero-shot, this checkpoint) | #11 of 45 probabilistic (79.0 [75.3, 82.6]; interval reaches #1); #13 point (59.9); **on the size-vs-score Pareto front** |
+| [TS-Arena](https://dag-upb-ts-arena.hf.space/) — overall, all 16 challenges | Obel (PCFM + retrieved outside series), *provisional* | Highest score on the board: 104.1 [99.7, 120.3] probabilistic, 83.5 [77.4, 97.3] point — no rank yet (3 of the 4 required weeks played) |
+| [GIFT-Eval](https://huggingface.co/spaces/Salesforce/GIFT-Eval) | PCFM (zero-shot) | **#2 by multivariate CRPS** (0.440; #1: 0.438); univariate CRPS 0.515 |
+| [fev-bench](https://huggingface.co/spaces/autogluon/fev-bench) | PCFM (zero-shot) | **Top 3 of 16** forecasting foundation models on MASE and scaled quantile loss |
+
+### TS-Arena
+
+[TS-Arena](https://dag-upb-ts-arena.hf.space/) is a live, **pre-registered**
+benchmark: forecasts are submitted before the ground truth exists, so no test
+data can leak into training. With 53M parameters, PCFM sits on the
+size-vs-score Pareto front — no smaller model scores higher — and its
+domain fine-tuned variant, PCFM-FT, leads the overall ranking ahead of models
+of every size.
+
+**Next step, live now: Obel.** Obel puts PCFM behind a retrieval step: before
+it forecasts, it finds related public series — weather, market data,
+published forecasts — and hands them to PCFM as extra variables. On the live
+board it currently has the highest score of all models (probabilistic Arena
+Score 104.1 vs. 82.7 for PCFM-FT, the best ranked model) and the highest score
+in 12 of 16 challenges. This is **provisional**: TS-Arena ranks a model only
+after four weeks of play, and Obel had played three as of 6 Nov 2026.
+
+<p align="center"><img src="figures/tsarena_pareto.png" width="85%" alt="TS-Arena: model size against Arena Score, with the Pareto front; SCCH/PCFM on the front at about 53M parameters"></p>
+<p align="center"><i>TS-Arena, model size vs. point Arena Score, all tracks, 28 Oct 2026.</i></p>
+
+### GIFT-Eval
+
+On [GIFT-Eval](https://huggingface.co/spaces/Salesforce/GIFT-Eval), PCFM ranks
+**#2 by multivariate CRPS** (0.440, behind 0.438) — the setting the model is
+built for. Its univariate CRPS (0.515) is a weaker result. The submission is
+training-free and fully reproducible with the code in this repository
+([recipe](#gift-eval-recipe)).
+
+<p align="center"><img src="figures/gifteval_multivariate_crps.png" width="90%" alt="GIFT-Eval leaderboard sorted by multivariate CRPS: t0-gamma 0.438, PCFM 0.44"></p>
+
+### fev-bench
+
+On [fev-bench](https://huggingface.co/spaces/autogluon/fev-bench), PCFM ranks
+**among the top 3 of 16 evaluated forecasting foundation models** on both
+point accuracy (MASE) and probabilistic accuracy (scaled quantile loss) —
+pairwise skill scores with 95% confidence intervals:
 
 | MASE skill score | Scaled quantile loss skill score |
 |---|---|
@@ -286,11 +341,15 @@ on a saturating system:
   <img src="figures/whatif_dose_nonlinear.png" width="90%" alt="Dissertation dose-response, saturating system">
 </p>
 
-## GIFT-Eval
+## GIFT-Eval recipe
 
-`utils.py` holds the training-free inference recipe of our [GIFT-Eval](https://github.com/SalesforceAIResearch/gift-eval)
-submission (sign-flip x dilation ensemble, short-context stretching, context cap); `gifteval.ipynb` evaluates the
-released checkpoint with it on the full suite (97 configurations), end to end in Colab.
+`utils.py` holds the training-free inference recipe of our
+[GIFT-Eval](https://huggingface.co/spaces/Salesforce/GIFT-Eval) submission
+(#2 by multivariate CRPS — see [Leaderboards](#leaderboards)): a sign-flip ×
+dilation ensemble, short-context stretching, and a context cap.
+`gifteval.ipynb` evaluates the released checkpoint with it on the full suite
+(97 configurations), end to end in Colab. Benchmark code:
+[SalesforceAIResearch/gift-eval](https://github.com/SalesforceAIResearch/gift-eval).
 
 ```python
 from utils import load_model, PCFMForecaster
@@ -320,12 +379,15 @@ Open `gifteval.ipynb` in Colab (GPU runtime) and run all cells; it writes `resul
 | Output | 9 monotone quantiles (0.1–0.9) per step |
 | Normalization | per-variable instance norm (asinh z-score; min-max for discrete series) |
 | Graph conditioning | per-edge lagged message passing |
+| Leaderboards | TS-Arena #1 overall (PCFM-FT), Pareto front (PCFM); GIFT-Eval #2 multivariate CRPS; fev-bench top 3 of 16 (as of 6 Nov 2026) |
 
 ## Repository layout
 
 ```
 model.py           the complete model + public API (single file)
 example.py         the five demos above; saves example_*.png, prints all numbers
+utils.py           training-free GIFT-Eval inference recipe (PCFMForecaster)
+gifteval.ipynb     end-to-end GIFT-Eval evaluation (Colab)
 test_release.py    self-contained test suite (no checkpoint download needed)
 requirements.txt   torch, numpy, huggingface_hub, safetensors (+ optional pandas, scipy, matplotlib)
 figures/           the figures embedded in this README
