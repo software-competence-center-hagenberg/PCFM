@@ -396,20 +396,20 @@ figures/           the figures embedded in this README
 ## Citation
 
 If you use PCFM, please cite the dissertation, which describes the released
-checkpoint, or the DaWaK 2026 paper, which introduced the approach. The
+checkpoint, and the DaWaK 2026 paper, which introduced the approach. The
 checkpoint reported in the DaWaK paper was further pre-trained afterwards; the
 released checkpoint and its improved results are those reported in the
 dissertation.
 
-Michael Mayr. *Towards Foundational Data-Driven Digital Twins in Process Industry.* Doctoral dissertation (Dr. techn.), Johannes Kepler University Linz, 2026.
+Michael Mayr. *Towards Foundational Digital Twins in Process Industry: Topology-Constrained Time-Series Foundation Models.* Doctoral dissertation, Johannes Kepler University Linz, 2026. [urn:nbn:at:at-ubl:1-108719](https://resolver.obvsg.at/urn:nbn:at:at-ubl:1-108719)
 
 ```bibtex
-@phdthesis{Mayr2026Dissertation,
-  author = {Mayr, Michael},
-  title  = {Towards Foundational Data-Driven Digital Twins in Process Industry},
-  school = {Johannes Kepler University Linz},
-  type   = {Doctoral dissertation},
-  year   = {2026}
+@phdthesis{Mayr2026Thesis,
+  author    = {Mayr, Michael},
+  title     = {Towards Foundational Digital Twins in Process Industry: Topology-Constrained Time-Series Foundation Models},
+  school    = {Johannes Kepler University Linz},
+  year      = {2026},
+  url       = {https://resolver.obvsg.at/urn:nbn:at:at-ubl:1-108719}
 }
 ```
 
