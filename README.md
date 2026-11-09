@@ -395,6 +395,24 @@ figures/           the figures embedded in this README
 
 ## Citation
 
+If you use PCFM, please cite the dissertation, which describes the released
+checkpoint, or the DaWaK 2026 paper, which introduced the approach. The
+checkpoint reported in the DaWaK paper was further pre-trained afterwards; the
+released checkpoint and its improved results are those reported in the
+dissertation.
+
+Michael Mayr. *Towards Foundational Data-Driven Digital Twins in Process Industry.* Doctoral dissertation (Dr. techn.), Johannes Kepler University Linz, 2026.
+
+```bibtex
+@phdthesis{Mayr2026Dissertation,
+  author = {Mayr, Michael},
+  title  = {Towards Foundational Data-Driven Digital Twins in Process Industry},
+  school = {Johannes Kepler University Linz},
+  type   = {Doctoral dissertation},
+  year   = {2026}
+}
+```
+
 Michael Mayr and Georgios C. Chasparis. *Topologically-Constrained Any-Variate Time-Series Foundation Models for Twinning of Continuous Industrial Processes.* In: Big Data Analytics and Knowledge Discovery (DaWaK 2026), LNCS 16861, Springer, pp. 189–196. DOI: [10.1007/978-3-032-34896-8_15](https://doi.org/10.1007/978-3-032-34896-8_15)
 
 ```bibtex
